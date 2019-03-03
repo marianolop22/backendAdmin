@@ -1,0 +1,142 @@
+var express = require('express');
+var app = express();
+var Usuario = require('../models/usuario');
+var bcrypt = require('bcryptjs');
+var mdAutenticacion = require('../middlewares/autenticacion');
+
+//lista de usuarios
+app.get('/', (req, res, next) => {
+
+    Usuario.find({}, 'nombre email img role').exec((err, usuarios) => {
+
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                message: 'Error en la base de datos',
+                errors: err
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            usuarios
+        });
+    });
+})
+
+//crear un nuevo usuario
+app.post('/', mdAutenticacion.verificaToken, (req, res) => {
+
+    var body = req.body;
+    var usuario = new Usuario({
+        nombre: body.nombre,
+        email: body.email,
+        password: bcrypt.hashSync(body.password, 10),
+        img: body.img,
+        role: body.role
+    });
+
+    usuario.save((err, usuario) => {
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Error al crear usuario',
+                errors: err
+            });
+        }
+
+        return res.status(201).json({
+            ok: true,
+            usuario,
+            usuarioToken: req.usuario
+        });
+    });
+});
+
+//Actualizar usuario
+app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
+
+    var body = req.body
+    var id = req.params.id;
+
+    Usuario.findById(id, (err, usuario) => {
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Error al nbuscar usuario',
+                errors: errx
+            });
+        }
+
+        if (!usuario) {
+            return res.status(400).json({
+                ok: false,
+                message: 'el usuario no existe',
+                errors: { message: `no existe el usuario con id ${id}` }
+            });
+        } else {
+
+            usuario.nombre = body.nombre;
+            usuario.email = body.email;
+            usuario.role = body.role;
+
+            usuario.save((err, user) => {
+
+                if (err) {
+                    return res.status(400).json({
+                        ok: false,
+                        message: 'Error al actualizar usuario',
+                        errors: errx
+                    });
+                }
+
+                user.password = ':)';
+                return res.status(200).json({
+                    ok: true,
+                    user
+                });
+            });
+        }
+    });
+});
+
+
+//borrar usuario por id
+app.delete('/:id', mdAutenticacion.verificaToken, (req, res) => {
+
+    var id = req.params.id;
+
+    Usuario.findByIdAndRemove(id, (err, usuario) => {
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Error al actualizar usuario',
+                errors: errx
+            });
+        }
+
+        if (!usuario) {
+
+
+            return res.status(400).json({
+                ok: true,
+                mensaje: 'no existe el usuario ',
+                error: { message: 'el usuario no se borró' }
+            });
+
+        }
+
+        return res.status(200).json({
+            ok: true,
+            usuario
+        });
+    });
+});
+
+
+
+
+module.exports = app;
