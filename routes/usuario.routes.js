@@ -7,21 +7,30 @@ var mdAutenticacion = require('../middlewares/autenticacion');
 //lista de usuarios
 app.get('/', (req, res, next) => {
 
-    Usuario.find({}, 'nombre email img role').exec((err, usuarios) => {
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
 
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                message: 'Error en la base de datos',
-                errors: err
+    Usuario.find({}, 'nombre email img role')
+        .skip(desde)
+        .limit(5)
+        .exec((err, usuarios) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Error en la base de datos',
+                    errors: err
+                });
+            }
+
+            Usuario.count({}, (err, conteo) => {
+                return res.status(200).json({
+                    ok: true,
+                    usuarios,
+                    total: conteo
+                });
             });
-        }
-
-        return res.status(200).json({
-            ok: true,
-            usuarios
         });
-    });
 })
 
 //crear un nuevo usuario
@@ -66,7 +75,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
             return res.status(400).json({
                 ok: false,
                 message: 'Error al nbuscar usuario',
-                errors: errx
+                errors: err
             });
         }
 
@@ -88,7 +97,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
                     return res.status(400).json({
                         ok: false,
                         message: 'Error al actualizar usuario',
-                        errors: errx
+                        errors: err
                     });
                 }
 
@@ -114,7 +123,7 @@ app.delete('/:id', mdAutenticacion.verificaToken, (req, res) => {
             return res.status(400).json({
                 ok: false,
                 message: 'Error al actualizar usuario',
-                errors: errx
+                errors: err
             });
         }
 
