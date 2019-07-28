@@ -7,7 +7,7 @@ var SEED = require('../config/config').SEED;
 
 //Google
 CLIENT_ID = require('../config/config').CLIENT_ID;
-const {OAuth2Client} = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 
 
@@ -62,10 +62,11 @@ app.post('/', (req, res) => {
 });
 
 //Login de Google
-async function verify( token ) {
+async function verify(token) {
+
     const ticket = await client.verifyIdToken({
         idToken: token,
-        audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
         // Or, if multiple clients access the backend:
         //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
     });
@@ -86,19 +87,19 @@ async function verify( token ) {
 
 
 
-app.post ('/google', async (req, resp) =>{
+app.post('/google', async(req, res) => {
 
-    var token  = req.body.token;
+    var token = req.body.token;
 
-    var googleUser = await verify ( token )
-                            .catch ( e=> {
-                                return res.status(403).json ( {
-                                    ok: false,
-                                    mensaje: 'token no valido'
-                                });
-                            })
+    var googleUser = await verify(token)
+        .catch(e => {
+            return res.status(403).json({
+                ok: false,
+                mensaje: 'token no valido'
+            });
+        })
 
-    Usuario.findOne ( { email: googleUser.email }, (err, usuarioDB) => {
+    Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => {
 
         if (err) {
             return res.status(500).json({
@@ -111,7 +112,7 @@ app.post ('/google', async (req, resp) =>{
 
         if (usuarioDB) { //
 
-            if ( usuarioDB.google === false ) {
+            if (usuarioDB.google === false) {
                 return res.status(400).json({
                     ok: false,
                     message: 'Debe usar su autenticacion normal'
@@ -119,14 +120,14 @@ app.post ('/google', async (req, resp) =>{
             } else {
 
                 var token = jwt.sign({
-                    usuarioDB
-                }, SEED, { expiresIn: 14400 }) //4horas
-    
-    
+                        usuarioDB
+                    }, SEED, { expiresIn: 14400 }) //4horas
+
+
                 return res.status(200).json({
                     ok: true,
-                    token,
-                    usuario,
+                    token: token,
+                    usuario: usuarioDB,
                     id: usuarioDB._id
                 });
             }
@@ -139,16 +140,18 @@ app.post ('/google', async (req, resp) =>{
             usuario.google = true;
             usuario.password = ':)';
 
-            usuario.save ( (err, usuarioDB )=> {
+            console.log(usuario);
+
+            usuario.save((err, usuarioDB) => {
 
                 var token = jwt.sign({
-                    usuarioDB
-                }, SEED, { expiresIn: 14400 }) //4horas
-    
+                        usuarioDB
+                    }, SEED, { expiresIn: 14400 }) //4horas
+
                 return res.status(200).json({
                     ok: true,
-                    token,
-                    usuario,
+                    token: token,
+                    usuario: usuario,
                     id: usuarioDB._id
                 });
             });
