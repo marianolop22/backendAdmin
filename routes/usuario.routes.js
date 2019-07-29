@@ -104,7 +104,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
                 user.password = ':)';
                 return res.status(200).json({
                     ok: true,
-                    user
+                    usuario: user
                 });
             });
         }
