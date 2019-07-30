@@ -13,13 +13,13 @@ app.get('/coleccion/:tabla/:busqueda', (req, res, next) => {
     var promesa;
 
     switch (tabla) {
-        case 'medico':
+        case 'medicos':
             promesa = buscarMedicos(busqueda, regex);
             break;
-        case 'usuario':
+        case 'usuarios':
             promesa = buscarUsuarios(busqueda, regex);
             break;
-        case 'hospital':
+        case 'hospitales':
             promesa = buscarHospitales(busqueda, regex);
             break;
         default:

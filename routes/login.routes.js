@@ -148,6 +148,8 @@ app.post('/google', async(req, res) => {
                         usuarioDB
                     }, SEED, { expiresIn: 14400 }) //4horas
 
+                console.log ('usuario', usuarioDB);
+
                 return res.status(200).json({
                     ok: true,
                     token: token,
