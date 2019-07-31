@@ -62,14 +62,18 @@ app.post('/', (req, res) => {
 });
 
 //Login de Google
-async function verify(token) {
+async function verify( token ) {
 
     const ticket = await client.verifyIdToken({
         idToken: token,
         audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
         // Or, if multiple clients access the backend:
         //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-    });
+    }).catch (e => {
+        console.log ('error en token', e );
+        return Promise.reject(new Error(e));
+    } );
+
     const payload = ticket.getPayload();
     //const userid = payload['sub'];
     // If request specified a G Suite domain:
@@ -87,18 +91,30 @@ async function verify(token) {
 
 
 
-app.post('/google', async(req, res) => {
+app.post('/google', async (req, res) => {
 
     var token = req.body.token;
 
     var googleUser = await verify(token)
         .catch(e => {
+            error = e;
+            console.log ('error en catch', e);
             return res.status(403).json({
                 ok: false,
                 mensaje: 'token no valido'
             });
-        })
+        });
 
+    // if ( !googleUser.email ) {
+
+    //     return res.status(403).json({
+    //         ok: false,
+    //         mensaje: 'token no valido'
+    //     });
+    // }
+    
+    console.log('usuario google', googleUser.email);
+    
     Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => {
 
         if (err) {
@@ -144,6 +160,8 @@ app.post('/google', async(req, res) => {
 
             usuario.save((err, usuarioDB) => {
 
+                console.log ('error', err);
+
                 var token = jwt.sign({
                         usuarioDB
                     }, SEED, { expiresIn: 14400 }) //4horas
@@ -165,7 +183,7 @@ app.post('/google', async(req, res) => {
     //     mensaje: 'OK',
     //     googleUser: googleUser
     // })
-});
+}) ;
 
 
 
