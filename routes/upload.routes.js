@@ -92,7 +92,7 @@ function subirPorTipo(tipo, id, nombreArchivo, res) {
             }
 
             usuario.img = nombreArchivo;
-            usuario.password = ':)';
+            //usuario.password = ':)';
             usuario.save((err, usuarioActualizado) => {
 
                 return res.status(200).json({
@@ -115,7 +115,7 @@ function subirPorTipo(tipo, id, nombreArchivo, res) {
             }
 
             medico.img = nombreArchivo;
-            medico.password = ':)';
+            //medico.password = ':)';
             medico.save((err, medicoActualizado) => {
 
                 return res.status(200).json({
@@ -139,7 +139,7 @@ function subirPorTipo(tipo, id, nombreArchivo, res) {
             }
 
             hospital.img = nombreArchivo;
-            hospital.password = ':)';
+            //hospital.password = ':)';
             hospital.save((err, hospitalActualizado) => {
 
                 return res.status(200).json({

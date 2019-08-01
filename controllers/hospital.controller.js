@@ -1,14 +1,14 @@
 var Hospital = require('../models/hospital');
 
-function getHospital(req, res) {
+function getHospitalList(req, res) {
 
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
     Hospital.find({})
-        .skip(desde)
-        .limit(5)
-        .populate('usuario', 'nombre email')
+        //.skip(desde)
+        //.limit(5)
+        .populate('usuario', 'nombre img email')
         .exec((err, hospitales) => {
 
             if (err) {
@@ -19,7 +19,7 @@ function getHospital(req, res) {
                 });
             }
 
-            Hospital.count({}, (err, conteo) => {
+            Hospital.countDocuments({}, (err, conteo) => {
                 return res.status(200).json({
                     ok: true,
                     hospitales,
@@ -134,8 +134,36 @@ function removeHospital(req, res) {
     });
 }
 
+function getHospital(req, res) {
+
+    var id = req.query.id;
+
+    Hospital.findById(id)
+        .populate('usuario', 'nombre img email')
+        .exec((err, hospital) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Error en la base de datos',
+                    errors: err
+                });
+            }
+
+            return res.status(200).json({
+                ok: true,
+                hospital
+            });
+        });
+}
+
+
+
+
+
 module.exports = {
     getHospital,
+    getHospitalList,
     saveHospital,
     updateHospital,
     removeHospital

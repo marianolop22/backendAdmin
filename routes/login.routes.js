@@ -105,13 +105,13 @@ app.post('/google', async (req, res) => {
             });
         });
 
-    // if ( !googleUser.email ) {
+    if ( !googleUser.email ) {
 
-    //     return res.status(403).json({
-    //         ok: false,
-    //         mensaje: 'token no valido'
-    //     });
-    // }
+        return res.status(403).json({
+            ok: false,
+            mensaje: 'token no valido'
+        });
+    }
     
     console.log('usuario google', googleUser.email);
     
