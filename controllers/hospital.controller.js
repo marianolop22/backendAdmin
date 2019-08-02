@@ -32,6 +32,13 @@ function getHospitalList(req, res) {
 function saveHospital(req, res) {
 
     var body = req.body;
+    console.log ( 'body',body.img);
+
+
+    if ( !body.img ) {
+        body.img = "";
+    }
+
     var hospital = new Hospital({
         nombre: body.nombre,
         img: body.img,

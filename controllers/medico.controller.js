@@ -1,13 +1,13 @@
 var Medico = require('../models/medico');
 
-function getMedico(req, res) {
+function getMedicoList(req, res) {
 
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
     Medico.find({})
         .skip(desde)
-        .limit(5)
+        .limit(99)
         .populate('usuario', 'nombre email')
         .populate('hospital')
         .exec((err, medicos) => {
@@ -139,8 +139,46 @@ function removeMedico(req, res) {
     });
 }
 
+function getMedico(req, res) {
+
+    var id= req.params.id;
+
+    Medico.findById(id)
+        .populate('usuario', 'nombre email img')
+//        .populate('hospital')
+        .exec((err, medico) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Error en la base de datos',
+                    errors: err
+                });
+            }
+
+            if ( !medico ) {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'No existe el medico',
+                    errors: err
+                });
+            }
+
+            return res.status(200).json({
+                ok: true,
+                medico
+            });
+
+        });
+}
+
+
+
+
+
 module.exports = {
     getMedico,
+    getMedicoList,
     saveMedico,
     updateMedico,
     removeMedico
