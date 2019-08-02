@@ -34,7 +34,7 @@ app.get('/', (req, res, next) => {
 })
 
 //crear un nuevo usuario
-app.post('/', (req, res) => {
+app.post('/', [mdAutenticacion.verificaToken, mdAutenticacion.verificaADM],(req, res) => {
 
     var body = req.body;
     var usuario = new Usuario({
@@ -64,7 +64,7 @@ app.post('/', (req, res) => {
 });
 
 //Actualizar usuario
-app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
+app.put('/:id', [mdAutenticacion.verificaToken, mdAutenticacion.verificaADMUSER], (req, res) => {
 
     var body = req.body
     var id = req.params.id;
@@ -113,7 +113,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 
 
 //borrar usuario por id
-app.delete('/:id', mdAutenticacion.verificaToken, (req, res) => {
+app.delete('/:id', [mdAutenticacion.verificaToken, mdAutenticacion.verificaADM], (req, res) => {
 
     var id = req.params.id;
 
