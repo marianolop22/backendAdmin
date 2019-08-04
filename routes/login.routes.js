@@ -56,24 +56,24 @@ app.post('/', (req, res) => {
             token,
             usuario,
             id: usuario._id,
-            menu: getMenu ( usuario.role)
+            menu: getMenu(usuario.role)
         });
 
     });
 });
 
 //Login de Google
-async function verify( token ) {
+async function verify(token) {
 
     const ticket = await client.verifyIdToken({
         idToken: token,
         audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
         // Or, if multiple clients access the backend:
         //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-    }).catch (e => {
-        console.log ('error en token', e );
+    }).catch(e => {
+        console.log('error en token', e);
         return Promise.reject(new Error(e));
-    } );
+    });
 
     const payload = ticket.getPayload();
     //const userid = payload['sub'];
@@ -92,30 +92,28 @@ async function verify( token ) {
 
 
 
-app.post('/google', async (req, res) => {
+app.post('/google', async(req, res) => {
 
     var token = req.body.token;
 
     var googleUser = await verify(token)
         .catch(e => {
             error = e;
-            console.log ('error en catch', e);
+            console.log('error en catch', e);
             return res.status(403).json({
                 ok: false,
                 mensaje: 'token no valido'
             });
         });
 
-    if ( !googleUser.email ) {
+    if (!googleUser.email) {
 
         return res.status(403).json({
             ok: false,
             mensaje: 'token no valido'
         });
     }
-    
-    console.log('usuario google', googleUser.email);
-    
+
     Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => {
 
         if (err) {
@@ -137,7 +135,7 @@ app.post('/google', async (req, res) => {
             } else {
 
                 var token = jwt.sign({
-                        usuarioDB
+                        usuario: usuarioDB
                     }, SEED, { expiresIn: 14400 }) //4horas
 
 
@@ -146,7 +144,7 @@ app.post('/google', async (req, res) => {
                     token: token,
                     usuario: usuarioDB,
                     id: usuarioDB._id,
-                    menu: getMenu ( usuarioDB.role)
+                    menu: getMenu(usuarioDB.role)
                 });
             }
         } else {
@@ -158,24 +156,18 @@ app.post('/google', async (req, res) => {
             usuario.google = true;
             usuario.password = ':)';
 
-            console.log(usuario);
-
             usuario.save((err, usuarioDB) => {
 
-                console.log ('error', err);
-
                 var token = jwt.sign({
-                        usuarioDB
+                        usuario: usuarioDB
                     }, SEED, { expiresIn: 14400 }) //4horas
-
-                console.log ('usuario', usuarioDB);
 
                 return res.status(200).json({
                     ok: true,
                     token: token,
                     usuario: usuario,
                     id: usuarioDB._id,
-                    menu: getMenu ( usuarioDB.role)
+                    menu: getMenu(usuarioDB.role)
                 });
             });
         }
@@ -186,37 +178,36 @@ app.post('/google', async (req, res) => {
     //     mensaje: 'OK',
     //     googleUser: googleUser
     // })
-}) ;
+});
 
-function getMenu ( role ) {
+function getMenu(role) {
 
-    menu = [
-        {
-          titulo: 'Principal',
-          icono: 'mdi mdi-gauge',
-          submenu: [
-            { titulo: 'Dashboard', url: '/dashboard' },
-            { titulo: 'ProgressBar', url: '/progress' },
-            { titulo: 'Gráficas', url: '/graficas1' },
-            { titulo: 'Promesas', url: '/promesas' },
-            { titulo: 'rxjs', url: '/rxjs' }
-          ]
+    menu = [{
+            titulo: 'Principal',
+            icono: 'mdi mdi-gauge',
+            submenu: [
+                { titulo: 'Dashboard', url: '/dashboard' },
+                { titulo: 'ProgressBar', url: '/progress' },
+                { titulo: 'Gráficas', url: '/graficas1' },
+                { titulo: 'Promesas', url: '/promesas' },
+                { titulo: 'rxjs', url: '/rxjs' }
+            ]
         },
         {
-          titulo: 'Mantenimientos',
-          icono: 'mdi mdi-folder-lock-open',
-          submenu: [
-            //{ titulo: 'Usuarios', url: '/usuarios'},
-            { titulo: 'Hospitales', url: '/hospitales'},
-            { titulo: 'Médicos', url: '/medicos'}
-          ]
+            titulo: 'Mantenimientos',
+            icono: 'mdi mdi-folder-lock-open',
+            submenu: [
+                //{ titulo: 'Usuarios', url: '/usuarios'},
+                { titulo: 'Hospitales', url: '/hospitales' },
+                { titulo: 'Médicos', url: '/medicos' }
+            ]
         }
-      ];
+    ];
 
 
-      if ( role == 'ADMIN_ROLE') {
-          menu[1].submenu.unshift ( { titulo: 'Usuarios', url: '/usuarios'}  );
-      }
+    if (role == 'ADMIN_ROLE') {
+        menu[1].submenu.unshift({ titulo: 'Usuarios', url: '/usuarios' });
+    }
 
 
 
