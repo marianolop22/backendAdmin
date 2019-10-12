@@ -5,11 +5,28 @@ var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var SEED = require('../config/config').SEED;
 
+var mdAutenticacion = require('../middlewares/autenticacion');
+
 //Google
 CLIENT_ID = require('../config/config').CLIENT_ID;
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 
+
+app.get('/renuevatoken', mdAutenticacion.verificaToken, (req, res) => {
+
+    //crear token
+    var token = jwt.sign({
+            usuario: req.usuario
+        }, SEED, { expiresIn: 14400 }) //4horas
+
+    return res.status(200).json({
+        ok: true,
+        token: token
+    });
+
+
+});
 
 app.post('/', (req, res) => {
 
@@ -87,9 +104,6 @@ async function verify(token) {
         google: true
     };
 }
-
-
-
 
 
 app.post('/google', async(req, res) => {
@@ -214,9 +228,5 @@ function getMenu(role) {
     return menu;
 
 }
-
-
-
-
 
 module.exports = app;
