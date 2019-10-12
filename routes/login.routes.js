@@ -105,7 +105,6 @@ async function verify(token) {
     };
 }
 
-
 app.post('/google', async(req, res) => {
 
     var token = req.body.token;
@@ -222,11 +221,9 @@ function getMenu(role) {
     if (role == 'ADMIN_ROLE') {
         menu[1].submenu.unshift({ titulo: 'Usuarios', url: '/usuarios' });
     }
-
-
-
     return menu;
-
 }
+
+
 
 module.exports = app;
